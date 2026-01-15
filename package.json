@@ -3,7 +3,7 @@
   "displayName": "Reset Sizes",
   "description": "Reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.",
   "version": "1.0.2",
-  "publisher": "unstunned",
+  "publisher": "Unstunned",
   "repository": {
     "type": "git",
     "url": "https://github.com/stavarengo/vscode-reset-ui-sizes-extension"
