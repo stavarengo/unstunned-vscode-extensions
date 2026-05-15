@@ -1,0 +1,1 @@
+../backlog/done/2026-05-15.001.preview-redesign-drop-activity-bar/adr.0006-retire-activity-bar-entry-point.md
