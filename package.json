@@ -25,8 +25,7 @@
   "activationEvents": [
     "onCommand:resetSizes.resetAll",
     "onCommand:resetSizes.openActivityLog",
-    "onCommand:resetSizes.openPreview",
-    "onView:resetSizesActivityBarView"
+    "onCommand:resetSizes.openPreview"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -65,32 +64,8 @@
           "type": "boolean",
           "default": false,
           "description": "When a reset changes settings that require a window reload, reload immediately without prompting. Set to true by choosing \"Reload and don't ask again\" on the post-reset prompt; toggle off to bring the prompt back."
-        },
-        "resetSizes.showInActivityBar": {
-          "type": "boolean",
-          "default": false,
-          "description": "Show a Reset Sizes icon in the Activity Bar. The icon opens the read-only Preview view. The Preview view is always reachable from the Command Palette regardless of this setting."
         }
       }
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "resetSizesActivityBar",
-          "title": "Reset Sizes",
-          "icon": "images/activity-bar-icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "resetSizesActivityBar": [
-        {
-          "type": "webview",
-          "id": "resetSizesActivityBarView",
-          "name": "Preview",
-          "when": "config.resetSizes.showInActivityBar"
-        }
-      ]
     }
   },
   "scripts": {
