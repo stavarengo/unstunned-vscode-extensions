@@ -164,7 +164,7 @@ suite('ResetSizesActivityBarViewProvider — resolveWebviewView opens the Previe
 			e => e.packageJSON?.name === 'reset-sizes-extension'
 		);
 		assert.ok(extension);
-		const views = extension.packageJSON?.contributes?.views?.['resetSizes.activityBarContainer'] ?? [];
+		const views = extension.packageJSON?.contributes?.views?.['resetSizesActivityBar'] ?? [];
 		const ours = views.find((v: { id: string }) => v.id === ACTIVITY_BAR_VIEW_ID);
 		assert.ok(
 			ours,

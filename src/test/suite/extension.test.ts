@@ -207,8 +207,11 @@ suite('Extension Activation Test Suite', () => {
 			Array.isArray(containers) && containers.length > 0,
 			'S31: at least one activitybar view container must be contributed'
 		);
-		const ours = containers.find((c: { id: string }) => c.id === 'resetSizes.activityBarContainer');
-		assert.ok(ours, 'View container resetSizes.activityBarContainer must be declared');
+		const ours = containers.find((c: { id: string }) => c.id === 'resetSizesActivityBar');
+		assert.ok(ours, 'View container resetSizesActivityBar must be declared');
+		// VS Code's manifest validator rejects ids with dots; only [A-Za-z0-9_-] are accepted.
+		assert.match(ours.id, /^[A-Za-z0-9_-]+$/,
+			'Container id must conform to the VS Code manifest constraint (alphanumeric, underscore, hyphen)');
 		assert.strictEqual(ours.title, 'Reset Sizes', 'Container title must be "Reset Sizes"');
 		assert.ok(typeof ours.icon === 'string' && ours.icon.length > 0,
 			'Container must declare an icon path');
@@ -220,7 +223,7 @@ suite('Extension Activation Test Suite', () => {
 		);
 		assert.ok(extension);
 		const containers = extension.packageJSON?.contributes?.viewsContainers?.activitybar ?? [];
-		const ours = containers.find((c: { id: string }) => c.id === 'resetSizes.activityBarContainer');
+		const ours = containers.find((c: { id: string }) => c.id === 'resetSizesActivityBar');
 		assert.ok(ours);
 		const iconPath = path.resolve(extension.extensionPath, ours.icon);
 		assert.ok(fs.existsSync(iconPath),
@@ -233,11 +236,13 @@ suite('Extension Activation Test Suite', () => {
 		);
 		assert.ok(extension);
 		const viewsMap = extension.packageJSON?.contributes?.views ?? {};
-		const views = viewsMap['resetSizes.activityBarContainer'] ?? [];
+		const views = viewsMap['resetSizesActivityBar'] ?? [];
 		assert.ok(Array.isArray(views) && views.length > 0,
 			'S31: at least one view must be contributed inside the Activity Bar container');
-		const ours = views.find((v: { id: string }) => v.id === 'resetSizes.activityBarView');
-		assert.ok(ours, 'View resetSizes.activityBarView must be declared');
+		const ours = views.find((v: { id: string }) => v.id === 'resetSizesActivityBarView');
+		assert.ok(ours, 'View resetSizesActivityBarView must be declared');
+		assert.match(ours.id, /^[A-Za-z0-9_-]+$/,
+			'View id must conform to the VS Code manifest constraint (alphanumeric, underscore, hyphen)');
 		assert.strictEqual(
 			ours.when,
 			'config.resetSizes.showInActivityBar',
@@ -252,7 +257,7 @@ suite('Extension Activation Test Suite', () => {
 		assert.ok(extension);
 		const events: string[] = extension.packageJSON?.activationEvents ?? [];
 		assert.ok(
-			events.includes('onView:resetSizes.activityBarView'),
+			events.includes('onView:resetSizesActivityBarView'),
 			'S31: extension must activate when the user opens the Activity Bar view so the provider is registered in time'
 		);
 	});

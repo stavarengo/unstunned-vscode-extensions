@@ -26,7 +26,7 @@
     "onCommand:resetSizes.resetAll",
     "onCommand:resetSizes.openActivityLog",
     "onCommand:resetSizes.openPreview",
-    "onView:resetSizes.activityBarView"
+    "onView:resetSizesActivityBarView"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -76,17 +76,17 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "resetSizes.activityBarContainer",
+          "id": "resetSizesActivityBar",
           "title": "Reset Sizes",
           "icon": "images/activity-bar-icon.svg"
         }
       ]
     },
     "views": {
-      "resetSizes.activityBarContainer": [
+      "resetSizesActivityBar": [
         {
           "type": "webview",
-          "id": "resetSizes.activityBarView",
+          "id": "resetSizesActivityBarView",
           "name": "Preview",
           "when": "config.resetSizes.showInActivityBar"
         }

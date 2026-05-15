@@ -19,13 +19,11 @@
 import * as vscode from 'vscode';
 import { openPreviewPanel } from './previewPanel';
 
-/**
- * View ID declared in `package.json` under
- * `contributes.views["resetSizes.activityBarContainer"]`. Used by
- * `vscode.window.registerWebviewViewProvider` and by the activation event
- * `onView:resetSizes.activityBarView`.
- */
-export const ACTIVITY_BAR_VIEW_ID = 'resetSizes.activityBarView';
+// VS Code's manifest validator rejects view-container and view IDs that
+// contain dots (only [A-Za-z0-9_-] are accepted). Keep these as identifiers
+// without dots; the `resetSizes.` namespace is preserved for commands and
+// settings where dots are allowed.
+export const ACTIVITY_BAR_VIEW_ID = 'resetSizesActivityBarView';
 
 /**
  * The `WebviewViewProvider` that owns the sidebar slot under the Reset Sizes
