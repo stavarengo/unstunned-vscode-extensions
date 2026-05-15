@@ -77,7 +77,7 @@
     "test:manual-smoke": "echo 'Manual smoke checklist lives in docs/ai/manual-smoke.md. Run those scenarios in an Extension Development Host (F5).' && exit 1",
     "lint": "eslint src --ext ts",
     "package": "vsce package --out extension.vsix",
-    "install-local": "npm run compile && npm run package && code --install-extension extension.vsix --force",
+    "install-local": "npm run compile && npm run package && bash scripts/install-local.sh extension.vsix",
     "bump": "node ./scripts/bump-version.js",
     "publish": "node ./scripts/publish.js"
   },

@@ -8,8 +8,15 @@ tsconfig.json
 # Development files
 .vscode/
 .claude/
-test-workspace/
+.devcontainer/
+.eslintrc.json
+.mocharc.json
+.gitmodules
 docs/
+scripts/
+test-fixtures/
+test-workspace/
+tmp/
 
 # Git
 .git/
@@ -22,7 +29,9 @@ docs/
 # Source maps
 **/*.map
 
-# Documentation (except README)
+# AI / contributor docs (keep README + CHANGELOG)
+AGENTS.md
+CLAUDE.md
 TESTING.md
 
 # Package manager
