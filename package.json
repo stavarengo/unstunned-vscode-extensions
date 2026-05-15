@@ -2,7 +2,7 @@
   "name": "reset-sizes-extension",
   "displayName": "Reset Sizes",
   "description": "Reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "Unstunned",
   "repository": {
     "type": "git",
