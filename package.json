@@ -2,7 +2,7 @@
   "name": "reset-sizes-extension",
   "displayName": "Reset Sizes",
   "description": "Reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publisher": "Unstunned",
   "repository": {
     "type": "git",
@@ -82,16 +82,18 @@
     "publish": "node ./scripts/publish.js"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.6",
     "@types/node": "^18.x",
     "@types/vscode": "^1.74.0",
-    "@types/mocha": "^10.0.6",
-    "@vscode/vsce": "^2.22.0",
-    "typescript": "^5.3.3",
-    "mocha": "^10.2.0",
-    "eslint": "^8.56.0",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
+    "@vscode/vsce": "^2.32.0",
+    "eslint": "^8.56.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.3",
     "vscode": "file:./src/test/shims/vscode-pkg"
   },
-  "dependencies": {}
+  "dependencies": {
+    "publish": "^0.6.0"
+  }
 }
