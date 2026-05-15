@@ -23,86 +23,74 @@
   ],
   "icon": "images/icon.png",
   "activationEvents": [
-    "onCommand:resetSizes.resetAll"
+    "onCommand:resetSizes.resetAll",
+    "onCommand:resetSizes.openActivityLog",
+    "onCommand:resetSizes.openPreview",
+    "onView:resetSizes.activityBarView"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "resetSizes.resetAll",
-        "title": "Reset All Sizes"
+        "title": "Reset",
+        "category": "Reset Sizes"
+      },
+      {
+        "command": "resetSizes.openActivityLog",
+        "title": "Open Activity Log",
+        "category": "Reset Sizes"
+      },
+      {
+        "command": "resetSizes.openPreview",
+        "title": "Open Preview",
+        "category": "Reset Sizes"
       }
     ],
     "configuration": {
       "title": "Reset Sizes",
       "properties": {
-        "resetSizes.preset": {
-          "type": "string",
-          "enum": [
-            "zoom",
-            "zoomAndSettings",
-            "custom"
-          ],
-          "default": "zoom",
-          "description": "Preset configuration: 'zoom' resets only zoom commands, 'zoomAndSettings' also removes size settings. Select 'custom' to define your own commands and settings.",
-          "enumDescriptions": [
-            "Reset zoom behaviors only (UI zoom, editor font zoom, terminal font zoom). Safe and quick.",
-            "Reset zoom behaviors AND remove custom size settings like editor.fontSize, terminal.integrated.fontSize. Restores defaults.",
-            "Define your own custom command list and settings to reset. Fully flexible."
-          ]
-        },
-        "resetSizes.commands": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "VS Code command IDs to execute when Reset All Sizes is run. Change preset to 'custom' to modify this list. Defaults are determined by the selected preset.",
-          "markdownDescription": "VS Code command IDs to execute when **Reset All Sizes** is run. Defaults are determined by the selected preset. Examples:\n- `workbench.action.zoomReset` - Reset UI zoom\n- `editor.action.fontZoomReset` - Reset editor font zoom\n- `workbench.action.terminal.fontZoomReset` - Reset terminal font zoom\n\nChange preset to `custom` to modify this list."
-        },
-        "resetSizes.settingsToReset": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Setting keys to reset (remove custom values) when Reset All Sizes is run. Change preset to 'custom' to modify this list. Defaults are determined by the selected preset.",
-          "markdownDescription": "Setting keys to reset (remove custom values) when **Reset All Sizes** is run. Defaults are determined by the selected preset. Examples:\n- `editor.fontSize`\n- `editor.lineHeight`\n- `terminal.integrated.fontSize`\n- `window.zoomLevel`\n\nChange preset to `custom` to modify this list."
-        },
-        "resetSizes.scopes": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "user",
-              "workspace",
-              "workspaceFolder"
-            ]
-          },
-          "default": [
-            "workspace"
-          ],
-          "description": "Configuration scopes to apply settings reset (only used when settingsToReset is not empty)."
-        },
-        "resetSizes.promptBeforeReset": {
+        "resetSizes.confirmBeforeDestructiveReset": {
           "type": "boolean",
           "default": true,
-          "description": "Show confirmation dialog before removing settings (only applies if settingsToReset is not empty). Recommended to keep enabled."
-        },
-        "resetSizes.reloadAfter": {
-          "type": "string",
-          "enum": [
-            "never",
-            "prompt",
-            "always"
-          ],
-          "default": "prompt",
-          "description": "When to reload window after reset: never, prompt user, or always."
+          "description": "Show a modal confirmation before clearing persisted settings. The dialog names the specific keys and scopes that will be cleaned. Recommended to keep enabled."
         },
         "resetSizes.showSummaryNotification": {
           "type": "boolean",
           "default": true,
-          "description": "Show notification with summary of reset actions."
+          "description": "Show a summary notification after each reset, naming what was changed.",
+          "markdownDescription": "Show a summary notification after each reset, naming what was changed.\n\nThe detailed run-by-run record is available in the activity log: [Open Reset Sizes activity log](command:resetSizes.openActivityLog).\n\nWant to see what a reset would change before you run it? Open the read-only matrix: [Open Reset Sizes preview](command:resetSizes.openPreview)."
+        },
+        "resetSizes.reloadSilently": {
+          "type": "boolean",
+          "default": false,
+          "description": "When a reset changes settings that require a window reload, reload immediately without prompting. Set to true by choosing \"Reload and don't ask again\" on the post-reset prompt; toggle off to bring the prompt back."
+        },
+        "resetSizes.showInActivityBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a Reset Sizes icon in the Activity Bar. The icon opens the read-only Preview view. The Preview view is always reachable from the Command Palette regardless of this setting."
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "resetSizes.activityBarContainer",
+          "title": "Reset Sizes",
+          "icon": "images/activity-bar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "resetSizes.activityBarContainer": [
+        {
+          "type": "webview",
+          "id": "resetSizes.activityBarView",
+          "name": "Preview",
+          "when": "config.resetSizes.showInActivityBar"
+        }
+      ]
     }
   },
   "scripts": {

@@ -1,238 +1,388 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import {
+	buildConfirmationMessage,
 	executeVSCodeCommand,
-	updateSetting,
-	updateSettingAcrossScopes,
+	formatInvocationLog,
 	getExtensionConfig,
-	showConfirmationDialog,
-	showReloadPrompt,
-	PRESET_CONFIGS
+	MODE_OPTIONS,
+	SCOPE_OPTIONS,
+	SettingClearStep,
+	summariseInvocation,
+	updateSettingTarget,
+	ZOOM_RESET_COMMANDS
 } from '../../utils';
+import { ResetInvocationRecord } from '../../types';
 
 suite('Utility Functions Test Suite', () => {
 
-	suite('getExtensionConfig', () => {
-		test('should return default configuration values', () => {
-			const config = getExtensionConfig();
+	suite('MODE_OPTIONS (S35: exactly three modes)', () => {
+		test('contains exactly three options', () => {
+			assert.strictEqual(MODE_OPTIONS.length, 3);
+		});
 
-			assert.ok(config, 'Config should be defined');
-			assert.strictEqual(typeof config.preset, 'string');
-			assert.ok(Array.isArray(config.commands));
-			assert.ok(Array.isArray(config.settingsToReset));
-			assert.ok(Array.isArray(config.scopes));
-			assert.strictEqual(typeof config.promptBeforeReset, 'boolean');
-			assert.strictEqual(typeof config.reloadAfter, 'string');
+		test('contains zoom, fontSize, and zoomAndFontSize — and nothing else', () => {
+			const values = MODE_OPTIONS.map(o => o.value).sort();
+			assert.deepStrictEqual(values, ['fontSize', 'zoom', 'zoomAndFontSize']);
+		});
+
+		test('does NOT expose a "custom" mode', () => {
+			const labels = MODE_OPTIONS.map(o => o.label.toLowerCase());
+			const values = MODE_OPTIONS.map(o => o.value.toLowerCase());
+			assert.ok(!labels.some(l => l.includes('custom')), 'No mode label should mention "custom"');
+			assert.ok(!values.some(v => v.includes('custom')), 'No mode value should be "custom"');
+		});
+
+		test('every option has a non-empty label and description', () => {
+			for (const option of MODE_OPTIONS) {
+				assert.ok(option.label.length > 0, `Empty label for ${option.value}`);
+				assert.ok(option.description.length > 0, `Empty description for ${option.value}`);
+			}
+		});
+	});
+
+	suite('SCOPE_OPTIONS (three rungs in destructiveness order)', () => {
+		test('contains exactly three rungs', () => {
+			assert.strictEqual(SCOPE_OPTIONS.length, 3);
+		});
+
+		test('rungs are session, workspace, global', () => {
+			const values = SCOPE_OPTIONS.map(o => o.value);
+			assert.deepStrictEqual(values, ['session', 'workspace', 'global']);
+		});
+
+		test('copy uses destructiveness vocabulary, not precedence vocabulary', () => {
+			for (const option of SCOPE_OPTIONS) {
+				const text = `${option.label} ${option.description}`.toLowerCase();
+				assert.ok(
+					!text.includes('precedence'),
+					`Scope copy must not use "precedence" vocabulary (found in: ${option.value})`
+				);
+				assert.ok(
+					!text.includes('override wins'),
+					`Scope copy must not describe override-winning (found in: ${option.value})`
+				);
+			}
+		});
+	});
+
+	suite('ZOOM_RESET_COMMANDS', () => {
+		test('targets UI zoom, editor font zoom, and terminal font zoom', () => {
+			assert.deepStrictEqual([...ZOOM_RESET_COMMANDS], [
+				'workbench.action.zoomReset',
+				'editor.action.fontZoomReset',
+				'workbench.action.terminal.fontZoomReset'
+			]);
+		});
+	});
+
+	suite('getExtensionConfig', () => {
+		test('returns the two slice 1 preferences with their defaults', () => {
+			const config = getExtensionConfig();
+			assert.strictEqual(typeof config.confirmBeforeDestructiveReset, 'boolean');
 			assert.strictEqual(typeof config.showSummaryNotification, 'boolean');
 		});
 
-		test('should apply preset defaults when switching presets', async function() {
-			if (!vscode.workspace.workspaceFolders) {
-				this.skip();
-				return;
-			}
-
+		test('default for confirmBeforeDestructiveReset is true (safe-by-default)', async () => {
 			const configApi = vscode.workspace.getConfiguration('resetSizes');
+			const inspect = configApi.inspect('confirmBeforeDestructiveReset');
+			assert.strictEqual(inspect?.defaultValue, true, 'Manifest must default to true');
+		});
 
-			// Store original values to restore later
-			const originalPreset = configApi.get('preset');
-			const originalCommands = configApi.inspect('commands');
-			const originalSettings = configApi.inspect('settingsToReset');
-
-			try {
-				// Clear any explicit commands/settingsToReset to test preset defaults
-				await configApi.update('commands', undefined, vscode.ConfigurationTarget.Workspace);
-				await configApi.update('settingsToReset', undefined, vscode.ConfigurationTarget.Workspace);
-
-				// Test 'zoom' preset
-				await configApi.update('preset', 'zoom', vscode.ConfigurationTarget.Workspace);
-				let config = getExtensionConfig();
-				assert.deepStrictEqual(config.commands, PRESET_CONFIGS.zoom.commands,
-					'zoom preset should have correct default commands');
-				assert.deepStrictEqual(config.settingsToReset, PRESET_CONFIGS.zoom.settingsToReset,
-					'zoom preset should have empty settingsToReset');
-
-				// Test 'zoomAndSettings' preset
-				await configApi.update('preset', 'zoomAndSettings', vscode.ConfigurationTarget.Workspace);
-				config = getExtensionConfig();
-				assert.deepStrictEqual(config.commands, PRESET_CONFIGS.zoomAndSettings.commands,
-					'zoomAndSettings preset should have correct default commands');
-				assert.deepStrictEqual(config.settingsToReset, PRESET_CONFIGS.zoomAndSettings.settingsToReset,
-					'zoomAndSettings preset should have settings to reset, not empty array');
-				assert.ok(config.settingsToReset.length > 0,
-					'zoomAndSettings settingsToReset should not be empty');
-
-				// Test 'custom' preset
-				await configApi.update('preset', 'custom', vscode.ConfigurationTarget.Workspace);
-				config = getExtensionConfig();
-				assert.deepStrictEqual(config.commands, PRESET_CONFIGS.custom.commands,
-					'custom preset should have empty default commands');
-				assert.deepStrictEqual(config.settingsToReset, PRESET_CONFIGS.custom.settingsToReset,
-					'custom preset should have empty settingsToReset');
-
-			} finally {
-				// Restore original values
-				await configApi.update('preset', originalPreset, vscode.ConfigurationTarget.Workspace);
-				if (originalCommands?.workspaceValue !== undefined) {
-					await configApi.update('commands', originalCommands.workspaceValue, vscode.ConfigurationTarget.Workspace);
-				} else {
-					await configApi.update('commands', undefined, vscode.ConfigurationTarget.Workspace);
-				}
-				if (originalSettings?.workspaceValue !== undefined) {
-					await configApi.update('settingsToReset', originalSettings.workspaceValue, vscode.ConfigurationTarget.Workspace);
-				} else {
-					await configApi.update('settingsToReset', undefined, vscode.ConfigurationTarget.Workspace);
-				}
-			}
+		test('default for showSummaryNotification is true', () => {
+			const configApi = vscode.workspace.getConfiguration('resetSizes');
+			const inspect = configApi.inspect('showSummaryNotification');
+			assert.strictEqual(inspect?.defaultValue, true, 'Manifest must default to true');
 		});
 	});
 
 	suite('executeVSCodeCommand', () => {
-		test('should return success for valid commands', async () => {
-			// Using a safe command that exists in VS Code and won't disrupt the test environment
-			const result = await executeVSCodeCommand('workbench.action.showCommands');
-			// This command should succeed
+		test('returns success for a built-in command', async () => {
+			const result = await executeVSCodeCommand('workbench.action.zoomReset');
 			assert.strictEqual(result.success, true);
-			assert.strictEqual(result.error, undefined);
+			assert.strictEqual(result.id, 'workbench.action.zoomReset');
 		});
 
-		test('should return failure with error message for invalid commands', async () => {
-			const result = await executeVSCodeCommand('invalid.command.that.does.not.exist');
+		test('captures failure as data (does not throw)', async () => {
+			const result = await executeVSCodeCommand('definitely.not.a.real.command.xyz');
 			assert.strictEqual(result.success, false);
-			assert.ok(result.error, 'Expected error message to be defined');
-			assert.ok(result.error.length > 0, 'Expected non-empty error message');
+			assert.ok(result.error, 'A failed command must include an error message');
 		});
 	});
 
-	suite('updateSetting', () => {
-		test('should successfully update a setting', async function() {
-			// This test requires a workspace context
-			if (!vscode.workspace.workspaceFolders) {
-				this.skip();
-				return;
+	suite('updateSettingTarget (S23 partial-failure tolerance for settings)', () => {
+		test('returns success when clearing a real setting at Global', async () => {
+			const key = 'editor.fontSize';
+			const original = vscode.workspace.getConfiguration().inspect(key)?.globalValue;
+			await vscode.workspace.getConfiguration().update(key, 17, vscode.ConfigurationTarget.Global);
+			try {
+				const result = await updateSettingTarget(key, vscode.ConfigurationTarget.Global);
+				assert.strictEqual(result.success, true);
+				assert.strictEqual(result.key, key);
+				assert.strictEqual(result.target, vscode.ConfigurationTarget.Global);
+			} finally {
+				await vscode.workspace.getConfiguration().update(key, original, vscode.ConfigurationTarget.Global);
 			}
-
-			const result = await updateSetting(
-				'resetSizes.preset',
-				'zoom',
-				vscode.ConfigurationTarget.Workspace
-			);
-
-			assert.strictEqual(result.key, 'resetSizes.preset');
-			assert.strictEqual(result.target, vscode.ConfigurationTarget.Workspace);
-			assert.strictEqual(result.success, true, 'Setting update should succeed');
 		});
 
-		test('should handle setting reset with undefined value', async function() {
-			if (!vscode.workspace.workspaceFolders) {
-				this.skip();
-				return;
-			}
-
-			const result = await updateSetting(
-				'resetSizes.preset',
-				undefined,
-				vscode.ConfigurationTarget.Workspace
-			);
-
-			assert.strictEqual(result.key, 'resetSizes.preset');
-			assert.strictEqual(result.success, true);
-		});
-
-		test('should update setting scoped to workspace folder', async function() {
-			if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-				this.skip();
-				return;
-			}
-
-			const folder = vscode.workspace.workspaceFolders[0];
-
-			// Update setting at WorkspaceFolder scope with the folder provided
-			const result = await updateSetting(
-				'editor.tabSize',
-				4,
-				vscode.ConfigurationTarget.WorkspaceFolder,
-				folder
-			);
-
-			assert.strictEqual(result.key, 'editor.tabSize');
-			assert.strictEqual(result.target, vscode.ConfigurationTarget.WorkspaceFolder);
-			assert.strictEqual(result.success, true, 'Setting update should succeed');
-
-			// Clean up: reset the setting
-			await updateSetting(
-				'editor.tabSize',
-				undefined,
-				vscode.ConfigurationTarget.WorkspaceFolder,
-				folder
-			);
-		});
-	});
-
-	suite('updateSettingAcrossScopes', () => {
-		test('should update setting across multiple scopes', async function() {
-			if (!vscode.workspace.workspaceFolders) {
-				this.skip();
-				return;
-			}
-
-			const { changes, warnings } = await updateSettingAcrossScopes(
+		test('captures failure as data when WorkspaceFolder is requested without folderUri', async () => {
+			// WorkspaceFolder writes require a folderUri context; without one,
+			// VS Code rejects. updateSettingTarget must capture that as data
+			// rather than throw.
+			const result = await updateSettingTarget(
 				'editor.fontSize',
-				['workspace'],
-				vscode.workspace.workspaceFolders
-			);
-
-			assert.ok(Array.isArray(changes));
-			assert.ok(changes.length >= 1, 'Should have at least one change');
-			changes.forEach(result => {
-				assert.strictEqual(result.key, 'editor.fontSize');
-				assert.strictEqual(typeof result.success, 'boolean', 'success should be a boolean');
-				assert.strictEqual(result.success, true, 'Setting update should succeed');
-			});
-			assert.ok(Array.isArray(warnings));
-		});
-
-		test('should handle no workspace', async () => {
-			const { changes, warnings } = await updateSettingAcrossScopes(
-				'editor.fontSize',
-				['user'],
+				vscode.ConfigurationTarget.WorkspaceFolder,
 				undefined
 			);
+			assert.strictEqual(result.success, false);
+			assert.ok(result.error, 'A failed update must include an error message');
+		});
+	});
 
-			assert.ok(Array.isArray(changes));
-			assert.ok(Array.isArray(warnings));
+	suite('formatInvocationLog', () => {
+		test('includes mode, scope, and the executed commands', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date('2026-05-15T12:00:00.000Z'),
+				mode: 'zoom',
+				scope: 'session',
+				keysConsidered: [],
+				keysChanged: [],
+				commands: [
+					{ id: 'workbench.action.zoomReset', success: true },
+					{ id: 'workbench.action.terminal.fontZoomReset', success: false, error: 'no terminal' }
+				],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const text = formatInvocationLog(record);
+			assert.ok(text.includes('Zoom only'), 'Should describe mode by label');
+			assert.ok(text.includes('Session'), 'Should describe scope by label');
+			assert.ok(text.includes('workbench.action.zoomReset'), 'Should name each command');
+			assert.ok(text.includes('workbench.action.terminal.fontZoomReset'), 'Should name failed command');
+			assert.ok(text.includes('no terminal'), 'Should include the failure message');
+			assert.ok(text.includes('2026-05-15T12:00:00'), 'Should include a timestamp');
 		});
 
-		test('should return warning when workspaceFolder scope has no folders', async () => {
-			const { changes, warnings } = await updateSettingAcrossScopes(
-				'editor.fontSize',
-				['workspaceFolder'],
-				undefined // No workspace folders
+		test('shows "(none)" when there are no considered keys', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'zoom',
+				scope: 'session',
+				keysConsidered: [],
+				keysChanged: [],
+				commands: [],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const text = formatInvocationLog(record);
+			assert.ok(text.includes('Keys considered: (none)'));
+			assert.ok(text.includes('Keys changed: (none)'));
+		});
+	});
+
+	suite('summariseInvocation (S24)', () => {
+		test('names the zoom changes when zoom-only succeeded', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'zoom',
+				scope: 'session',
+				keysConsidered: [],
+				keysChanged: [],
+				commands: [
+					{ id: 'workbench.action.zoomReset', success: true },
+					{ id: 'editor.action.fontZoomReset', success: true },
+					{ id: 'workbench.action.terminal.fontZoomReset', success: true }
+				],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record);
+			assert.ok(summary.includes('Zoom reset'), `Summary should name zoom reset, got: ${summary}`);
+			assert.ok(summary.includes('3'), 'Summary should count the steps');
+		});
+
+		test('reports failed steps alongside the successes (partial-failure tolerance, S23)', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'zoom',
+				scope: 'session',
+				keysConsidered: [],
+				keysChanged: [],
+				commands: [
+					{ id: 'workbench.action.zoomReset', success: true },
+					{ id: 'workbench.action.terminal.fontZoomReset', success: false, error: 'no terminal' }
+				],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record);
+			assert.ok(summary.includes('Failed: 1 step'), `Summary should name the failure count, got: ${summary}`);
+			assert.ok(summary.includes('Zoom reset'), 'Summary should still name the successful work');
+		});
+
+		test('says "Nothing changed." when nothing was applied', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'fontSize',
+				scope: 'session',
+				keysConsidered: [],
+				keysChanged: [],
+				commands: [],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record);
+			assert.ok(summary.includes('Nothing changed'), `Summary should report no changes, got: ${summary}`);
+		});
+
+		test('groups Workspace + WorkspaceFolder clears under a single "Workspace" heading (S6, S7)', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'fontSize',
+				scope: 'workspace',
+				keysConsidered: ['editor.fontSize'],
+				keysChanged: [
+					{
+						key: 'editor.fontSize',
+						target: vscode.ConfigurationTarget.Workspace,
+						success: true
+					},
+					{
+						key: 'editor.fontSize',
+						target: vscode.ConfigurationTarget.WorkspaceFolder,
+						success: true
+					}
+				],
+				commands: [],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record);
+			assert.ok(
+				/Workspace/.test(summary),
+				`Summary must mention the Workspace heading, got: ${summary}`
 			);
+			assert.ok(
+				!/WorkspaceFolder/.test(summary),
+				`Summary must NOT expose a separate WorkspaceFolder bucket, got: ${summary}`
+			);
+		});
 
-			assert.ok(Array.isArray(changes));
-			assert.strictEqual(changes.length, 0, 'No changes should be made without workspace folders');
-			assert.ok(Array.isArray(warnings));
-			assert.strictEqual(warnings.length, 1, 'Should have one warning');
-			assert.ok(warnings[0].includes('workspaceFolder'), 'Warning should mention workspaceFolder scope');
-			assert.ok(warnings[0].includes('editor.fontSize'), 'Warning should mention the setting key');
+		test('uses "User settings (remote)" label when remoteName is set (S15)', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'fontSize',
+				scope: 'global',
+				keysConsidered: ['editor.fontSize'],
+				keysChanged: [
+					{
+						key: 'editor.fontSize',
+						target: vscode.ConfigurationTarget.Global,
+						success: true
+					}
+				],
+				commands: [],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record, { remoteName: 'ssh-remote+host' });
+			assert.ok(
+				summary.includes('User settings (remote)'),
+				`Summary must show remote label when remoteName is set, got: ${summary}`
+			);
+			assert.ok(
+				!/\bGlobal\b/.test(summary),
+				`Summary must NOT show the "Global" label when remoteName is set, got: ${summary}`
+			);
+		});
+
+		test('names the key cleared in the activity-log summary (S24)', () => {
+			const record: ResetInvocationRecord = {
+				timestamp: new Date(),
+				mode: 'fontSize',
+				scope: 'global',
+				keysConsidered: ['editor.fontSize'],
+				keysChanged: [
+					{
+						key: 'editor.fontSize',
+						target: vscode.ConfigurationTarget.Global,
+						success: true
+					}
+				],
+				commands: [],
+				failures: [],
+				reloadOutcome: 'not-required'
+			};
+			const summary = summariseInvocation(record);
+			assert.ok(
+				summary.includes('editor.fontSize'),
+				`S24: summary should name the changed key, got: ${summary}`
+			);
 		});
 	});
 
-	suite('showConfirmationDialog', () => {
-		test('should be a function', () => {
-			assert.strictEqual(typeof showConfirmationDialog, 'function');
+	suite('buildConfirmationMessage (S3 modal text)', () => {
+		test('names every key under its bucket heading', () => {
+			const plan: SettingClearStep[] = [
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Global },
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Workspace },
+				{ key: 'window.zoomLevel', target: vscode.ConfigurationTarget.Global }
+			];
+			const message = buildConfirmationMessage(plan, 'global', undefined);
+			assert.ok(message.includes('Global:'), `Message must have a Global heading. Got: ${message}`);
+			assert.ok(message.includes('Workspace:'), `Message must have a Workspace heading. Got: ${message}`);
+			assert.ok(message.includes('editor.fontSize'), 'Message must name the cleared key');
+			assert.ok(message.includes('window.zoomLevel'), 'Message must name every cleared key');
 		});
 
-		// Note: We cannot fully test UI interactions in automated tests
-		// These would require manual testing or UI automation tools
-	});
-
-	suite('showReloadPrompt', () => {
-		test('should be a function', () => {
-			assert.strictEqual(typeof showReloadPrompt, 'function');
+		test('shows the chosen scope label at the top (S3)', () => {
+			const plan: SettingClearStep[] = [
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Workspace }
+			];
+			const message = buildConfirmationMessage(plan, 'workspace', undefined);
+			assert.ok(/scope: Workspace/i.test(message), `Header must name the chosen scope. Got: ${message}`);
 		});
 
-		// Note: We cannot fully test UI interactions in automated tests
+		test('folds WorkspaceFolder under "Workspace" — not a separate bucket (S6, S7)', () => {
+			const plan: SettingClearStep[] = [
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Workspace },
+				{
+					key: 'editor.fontSize',
+					target: vscode.ConfigurationTarget.WorkspaceFolder,
+					folderUri: vscode.Uri.parse('file:///folder1')
+				}
+			];
+			const message = buildConfirmationMessage(plan, 'workspace', undefined);
+			assert.ok(
+				!/WorkspaceFolder/.test(message),
+				`Message must NOT expose a WorkspaceFolder bucket. Got: ${message}`
+			);
+		});
+
+		test('uses "User settings (remote)" label when a remote is connected (S15)', () => {
+			const plan: SettingClearStep[] = [
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Global }
+			];
+			const message = buildConfirmationMessage(plan, 'global', 'ssh-remote+host');
+			assert.ok(
+				message.includes('User settings (remote)'),
+				`Remote scope must show the remote label. Got: ${message}`
+			);
+			assert.ok(
+				!/\bGlobal\b/.test(message),
+				`Message must not show "Global" when on a remote. Got: ${message}`
+			);
+		});
+
+		test('warns that the action is destructive ("back to built-in defaults")', () => {
+			const plan: SettingClearStep[] = [
+				{ key: 'editor.fontSize', target: vscode.ConfigurationTarget.Global }
+			];
+			const message = buildConfirmationMessage(plan, 'global', undefined);
+			assert.ok(
+				/built-in default/.test(message),
+				`Message must clarify that reset means "built-in defaults" (no undo). Got: ${message}`
+			);
+		});
 	});
 });

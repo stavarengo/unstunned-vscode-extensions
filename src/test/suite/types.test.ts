@@ -1,103 +1,81 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import {
-	Preset,
+	ResetMode,
 	ResetScope,
-	ReloadAfterOption,
 	ExtensionConfig,
 	SettingChange,
-	ResetAllSizesResult
+	ResetInvocationRecord
 } from '../../types';
 
 suite('Type Definitions Test Suite', () => {
-	test('Preset type should accept valid values', () => {
-		const zoom: Preset = 'zoom';
-		const zoomAndSettings: Preset = 'zoomAndSettings';
-		const custom: Preset = 'custom';
+	test('ResetMode accepts exactly the three documented modes', () => {
+		const zoom: ResetMode = 'zoom';
+		const fontSize: ResetMode = 'fontSize';
+		const zoomAndFontSize: ResetMode = 'zoomAndFontSize';
 		assert.strictEqual(zoom, 'zoom');
-		assert.strictEqual(zoomAndSettings, 'zoomAndSettings');
-		assert.strictEqual(custom, 'custom');
+		assert.strictEqual(fontSize, 'fontSize');
+		assert.strictEqual(zoomAndFontSize, 'zoomAndFontSize');
 	});
 
-	test('ResetScope type should accept valid values', () => {
-		const user: ResetScope = 'user';
+	test('ResetScope accepts exactly the three documented rungs', () => {
+		const session: ResetScope = 'session';
 		const workspace: ResetScope = 'workspace';
-		const workspaceFolder: ResetScope = 'workspaceFolder';
-		assert.strictEqual(user, 'user');
+		const global: ResetScope = 'global';
+		assert.strictEqual(session, 'session');
 		assert.strictEqual(workspace, 'workspace');
-		assert.strictEqual(workspaceFolder, 'workspaceFolder');
+		assert.strictEqual(global, 'global');
 	});
 
-	test('ReloadAfterOption type should accept valid values', () => {
-		const never: ReloadAfterOption = 'never';
-		const prompt: ReloadAfterOption = 'prompt';
-		const always: ReloadAfterOption = 'always';
-		assert.strictEqual(never, 'never');
-		assert.strictEqual(prompt, 'prompt');
-		assert.strictEqual(always, 'always');
-	});
-
-	test('ExtensionConfig should have all required properties', () => {
+	test('ExtensionConfig carries the three preferences (Slice 1 + Slice 3)', () => {
 		const config: ExtensionConfig = {
-			preset: 'zoom',
-			commands: ['workbench.action.zoomReset', 'editor.action.fontZoomReset'],
-			settingsToReset: [],
-			scopes: ['workspace'],
-			promptBeforeReset: true,
-			reloadAfter: 'prompt',
-			showSummaryNotification: true
+			confirmBeforeDestructiveReset: true,
+			showSummaryNotification: true,
+			reloadSilently: false
 		};
-
-		assert.strictEqual(config.preset, 'zoom');
-		assert.deepStrictEqual(config.commands, ['workbench.action.zoomReset', 'editor.action.fontZoomReset']);
-		assert.deepStrictEqual(config.settingsToReset, []);
-		assert.deepStrictEqual(config.scopes, ['workspace']);
-		assert.strictEqual(config.promptBeforeReset, true);
-		assert.strictEqual(config.reloadAfter, 'prompt');
+		assert.strictEqual(config.confirmBeforeDestructiveReset, true);
 		assert.strictEqual(config.showSummaryNotification, true);
+		assert.strictEqual(config.reloadSilently, false);
 	});
 
-	test('SettingChange should track setting update result', () => {
-		const successChange: SettingChange = {
+	test('SettingChange tracks success and failure shape', () => {
+		const ok: SettingChange = {
 			key: 'editor.fontSize',
 			target: vscode.ConfigurationTarget.Workspace,
 			success: true
 		};
+		assert.strictEqual(ok.success, true);
+		assert.strictEqual(ok.error, undefined);
 
-		assert.strictEqual(successChange.key, 'editor.fontSize');
-		assert.strictEqual(successChange.target, vscode.ConfigurationTarget.Workspace);
-		assert.strictEqual(successChange.success, true);
-		assert.strictEqual(successChange.error, undefined);
-
-		const failedChange: SettingChange = {
-			key: 'terminal.integrated.fontSize',
+		const failed: SettingChange = {
+			key: 'editor.fontSize',
 			target: vscode.ConfigurationTarget.Global,
 			success: false,
-			error: 'Permission denied'
+			error: 'denied'
 		};
-
-		assert.strictEqual(failedChange.success, false);
-		assert.strictEqual(failedChange.error, 'Permission denied');
+		assert.strictEqual(failed.success, false);
+		assert.strictEqual(failed.error, 'denied');
 	});
 
-	test('ResetAllSizesResult should have all required properties', () => {
-		const result: ResetAllSizesResult = {
-			executedCommands: ['workbench.action.zoomReset', 'editor.action.fontZoomReset'],
-			failedCommands: [{ id: 'workbench.action.terminal.fontZoomReset', error: 'No terminal' }],
-			updatedSettings: [
-				{
-					key: 'editor.fontSize',
-					target: vscode.ConfigurationTarget.Workspace,
-					success: true
-				}
+	test('ResetInvocationRecord captures everything needed for the activity log', () => {
+		const record: ResetInvocationRecord = {
+			timestamp: new Date(),
+			mode: 'zoom',
+			scope: 'session',
+			keysConsidered: [],
+			keysChanged: [],
+			commands: [
+				{ id: 'workbench.action.zoomReset', success: true }
 			],
-			timestamp: new Date()
+			failures: [],
+			reloadOutcome: 'not-required'
 		};
-
-		assert.strictEqual(result.executedCommands.length, 2);
-		assert.strictEqual(result.failedCommands.length, 1);
-		assert.strictEqual(result.failedCommands[0].id, 'workbench.action.terminal.fontZoomReset');
-		assert.strictEqual(result.updatedSettings.length, 1);
-		assert.ok(result.timestamp instanceof Date);
+		assert.ok(record.timestamp instanceof Date);
+		assert.strictEqual(record.mode, 'zoom');
+		assert.strictEqual(record.scope, 'session');
+		assert.strictEqual(record.keysConsidered.length, 0);
+		assert.strictEqual(record.keysChanged.length, 0);
+		assert.strictEqual(record.commands.length, 1);
+		assert.strictEqual(record.reloadOutcome, 'not-required');
 	});
 });

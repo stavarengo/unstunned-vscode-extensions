@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+  <!--
+    Reset Sizes activity bar icon. Monochrome 24x24, theme-aware
+    via `currentColor`.
+
+    Glyph: a single capital "T" centred on the canvas with a
+    downward-pointing arrow above (the visual cue for "shrink
+    back to default"). Reads cleanly at 16-24px (the sizes VS Code
+    renders for activity bar icons and overview hover badges).
+  -->
+  <!-- Top arrow pointing down: chevron at Y=2-7 -->
+  <path d="M9 2 L15 2 L15 6 L18 6 L12 11 L6 6 L9 6 Z"/>
+  <!-- "T" glyph: bold horizontal bar plus thick stem, occupies Y=13-22 -->
+  <path d="M5 13 L19 13 L19 16 L14 16 L14 22 L10 22 L10 16 L5 16 Z"/>
+</svg>
