@@ -5,3 +5,4 @@ dist/
 .vscode-test/
 *.vsix
 /test-workspace/
+tmp/
