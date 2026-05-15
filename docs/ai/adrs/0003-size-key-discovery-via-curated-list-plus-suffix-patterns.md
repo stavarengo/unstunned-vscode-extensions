@@ -1,0 +1,1 @@
+../backlog/done/2026-05-15.000.reset-sizes-revamp/adr.0003-size-key-discovery-via-curated-list-plus-suffix-patterns.md

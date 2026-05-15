@@ -1,0 +1,1 @@
+../backlog/done/2026-05-15.000.reset-sizes-revamp/adr.0005-preview-view-is-read-only.md

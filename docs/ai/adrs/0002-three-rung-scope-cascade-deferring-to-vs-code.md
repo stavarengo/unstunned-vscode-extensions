@@ -1,0 +1,1 @@
+../backlog/done/2026-05-15.000.reset-sizes-revamp/adr.0002-three-rung-scope-cascade-deferring-to-vs-code.md
