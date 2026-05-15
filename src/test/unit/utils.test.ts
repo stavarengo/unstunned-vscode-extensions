@@ -83,16 +83,20 @@ suite('Utility Functions Test Suite', () => {
 			assert.strictEqual(typeof config.showSummaryNotification, 'boolean');
 		});
 
-		test('default for confirmBeforeDestructiveReset is true (safe-by-default)', async () => {
-			const configApi = vscode.workspace.getConfiguration('resetSizes');
-			const inspect = configApi.inspect('confirmBeforeDestructiveReset');
-			assert.strictEqual(inspect?.defaultValue, true, 'Manifest must default to true');
+		// Defaults live in the manifest; read them directly rather than going
+		// through the vscode shim (which doesn't know about package.json).
+		test('default for confirmBeforeDestructiveReset is true (safe-by-default)', () => {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const manifest = require('../../../package.json');
+			const prop = manifest.contributes?.configuration?.properties?.['resetSizes.confirmBeforeDestructiveReset'];
+			assert.strictEqual(prop?.default, true, 'Manifest must default to true');
 		});
 
 		test('default for showSummaryNotification is true', () => {
-			const configApi = vscode.workspace.getConfiguration('resetSizes');
-			const inspect = configApi.inspect('showSummaryNotification');
-			assert.strictEqual(inspect?.defaultValue, true, 'Manifest must default to true');
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const manifest = require('../../../package.json');
+			const prop = manifest.contributes?.configuration?.properties?.['resetSizes.showSummaryNotification'];
+			assert.strictEqual(prop?.default, true, 'Manifest must default to true');
 		});
 	});
 

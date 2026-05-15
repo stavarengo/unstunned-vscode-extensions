@@ -73,7 +73,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./dist/test/runTest.js",
+    "test": "mocha",
+    "test:manual-smoke": "echo 'Manual smoke checklist lives in docs/ai/manual-smoke.md. Run those scenarios in an Extension Development Host (F5).' && exit 1",
     "lint": "eslint src --ext ts",
     "package": "vsce package --out extension.vsix",
     "install-local": "npm run compile && npm run package && code --install-extension extension.vsix --force",
@@ -84,15 +85,13 @@
     "@types/node": "^18.x",
     "@types/vscode": "^1.74.0",
     "@types/mocha": "^10.0.6",
-    "@types/glob": "^8.1.0",
-    "@vscode/test-electron": "^2.3.9",
     "@vscode/vsce": "^2.22.0",
     "typescript": "^5.3.3",
     "mocha": "^10.2.0",
-    "glob": "^10.3.10",
     "eslint": "^8.56.0",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1"
+    "@typescript-eslint/parser": "^6.19.1",
+    "vscode": "file:./src/test/shims/vscode-pkg"
   },
   "dependencies": {}
 }

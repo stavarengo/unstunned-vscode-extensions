@@ -414,12 +414,14 @@ suite('runReset Test Suite', () => {
 		});
 
 		test('Workspace clear also clears WorkspaceFolder overrides for the same key (S7)', async () => {
+			// The shim doesn't open a real workspace; seed a fake folder so the
+			// cascade walks the WorkspaceFolder iteration path.
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			const shim = require('vscode');
+			const fakeFolder = { uri: vscode.Uri.parse('file:///tmp/fake-folder'), name: 'fake-folder', index: 0 };
+			shim._testSetWorkspaceFolders([fakeFolder]);
 			const folders = vscode.workspace.workspaceFolders;
-			if (!folders || folders.length === 0) {
-				// The test host should always open the fixture folder; if for
-				// some reason it didn't, skip rather than false-pass.
-				assert.fail('Expected the test host to open the test-fixtures/test-workspace folder');
-			}
+			assert.ok(folders && folders.length > 0, 'precondition: fake folder seeded');
 			const folder = folders[0];
 
 			const config = vscode.workspace.getConfiguration();
@@ -454,6 +456,7 @@ suite('runReset Test Suite', () => {
 				);
 				await config.update(key, undefined, vscode.ConfigurationTarget.Workspace);
 				channel.dispose();
+				shim._testSetWorkspaceFolders(undefined);
 			}
 		});
 	});

@@ -62,12 +62,19 @@ src/
 - **Explicit return types** on functions
 - **Descriptive variable names** following camelCase
 
-## Testing
+## Testing policy
 
-- **Framework**: Mocha with @vscode/test-electron
-- **Test location**: `src/test/suite/*.test.ts`
-- **Run tests**: `npm test` (compiles first via pretest)
-- **Manual testing**: See `TESTING.md` for detailed scenarios
+> **No `@vscode/test-electron`.** It was removed after a real VS Code Electron
+> host crashed during a test run and dumped 42 GB of core to the host's disk.
+> All automated tests run as pure Node + Mocha against a local `vscode` shim
+> (`src/test/shims/vscode-pkg/`, wired in as a `file:` devDependency).
+
+- **Run tests**: `npm test` (compiles via `pretest`, then plain Mocha against `dist/test/unit/**/*.test.js`).
+- **Test location**: `src/test/unit/*.test.ts` (pure Node). No `src/test/suite/` or `runTest.ts`.
+- **vscode shim**: `src/test/shims/vscode-pkg/vscode.js` is the in-memory stand-in for the `vscode` module. Test helpers exposed: `_testResetConfigStore`, `_testSetRemoteName`, `_testSetExtensions`, `_testSetWorkspaceFolders`.
+- **When a test genuinely needs a real VS Code host** (real `WebviewPanel` lifecycle, command-registry dispatch, actual settings.json writes the shim doesn't simulate): add the scenario to `docs/ai/manual-smoke.md` and run it by hand via `npm run install-local` + Reload Window. Do not reintroduce `@vscode/test-electron`. If you (Claude) cannot test something automatically, ask the user to manually smoke it.
+- **VRT**: Playwright + headless Chromium for HTML/CSS verification of `renderPreviewHtml` output. Slice 2's pipeline (browsers under `/opt/playwright-browsers/`) is kept; reuse it instead of reinstalling. Don't use Playwright as a stand-in for VS Code runtime semantics — it can only render HTML/CSS, not simulate `vscode.window.createWebviewPanel`.
+- **Lint**: `npm run lint`.
 
 ## Common Tasks
 
@@ -87,7 +94,7 @@ src/
 ### Modifying command behavior
 
 1. Edit `src/commands/resetAllSizes.ts`
-2. Update tests in `src/test/suite/resetAllSizes.test.ts`
+2. Update tests in `src/test/unit/resetAllSizes.test.ts`
 3. Run `npm test` to verify
 
 ## Important Notes

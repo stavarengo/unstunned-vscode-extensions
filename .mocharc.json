@@ -1,0 +1,6 @@
+{
+	"spec": ["dist/test/unit/**/*.test.js"],
+	"ui": "tdd",
+	"reporter": "spec",
+	"timeout": 10000
+}

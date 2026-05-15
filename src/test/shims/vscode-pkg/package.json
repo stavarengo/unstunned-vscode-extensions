@@ -1,0 +1,8 @@
+{
+	"name": "vscode",
+	"private": true,
+	"version": "0.0.0-shim",
+	"description": "Local pure-Node shim for `vscode` used by unit tests. Excluded from packaging via .vscodeignore. At runtime in VS Code, the host injects its own `vscode` module via its extension-host loader and overrides this one.",
+	"main": "vscode.js",
+	"types": "vscode.d.ts"
+}
