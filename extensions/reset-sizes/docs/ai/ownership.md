@@ -8,7 +8,7 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/src/extension.ts` | Activation, command registration, output channel creation |
+| `src/extension.ts` | Activation, command registration, output channel creation |
 
 **When to modify**:
 - Adding new commands to the extension
@@ -21,7 +21,7 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/src/commands/resetAllSizes.ts` | Main reset command implementation |
+| `src/commands/resetAllSizes.ts` | Main reset command implementation |
 
 **When to modify**:
 - Changing the reset workflow
@@ -34,7 +34,7 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/src/utils/index.ts` | Shared utility functions |
+| `src/utils/index.ts` | Shared utility functions |
 
 **Contents**:
 - `getExtensionConfig()` - Configuration loading
@@ -56,7 +56,7 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/src/types/index.ts` | TypeScript interfaces and types |
+| `src/types/index.ts` | TypeScript interfaces and types |
 
 **Contents**:
 - `ExtensionConfig` - Configuration shape
@@ -74,8 +74,8 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/src/test/unit/*.test.ts` | Pure-Node Mocha tests (e.g. `resetAllSizes.test.ts`, `utils.test.ts`, `types.test.ts`) |
-| `extensions/reset-sizes/src/test/shims/vscode-pkg/` | In-memory `vscode` shim used by the tests (wired as a `file:` devDependency) |
+| `src/test/unit/*.test.ts` | Pure-Node Mocha tests (e.g. `resetAllSizes.test.ts`, `utils.test.ts`, `types.test.ts`) |
+| `src/test/shims/vscode-pkg/` | In-memory `vscode` shim used by the tests (wired as a `file:` devDependency) |
 
 **When to modify**:
 - Adding tests for new features
@@ -90,11 +90,11 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/package.json` | Extension metadata, commands, configuration schema |
-| `package.json` (root) | pnpm workspace root; recursive scripts (`build`, `test`, `lint`, `check`, `package`), `packageManager` pin |
-| `pnpm-workspace.yaml` (root) | Declares workspace package membership |
+| `package.json` | Extension metadata, commands, configuration schema, pnpm scripts |
 
-**Key sections** (extension `package.json`):
+Workspace-level files (root `package.json` recursive scripts, `pnpm-workspace.yaml`) live at the monorepo root — see the root `CLAUDE.md`.
+
+**Key sections**:
 - `contributes.commands` - Registered commands
 - `contributes.configuration` - Settings schema
 - `activationEvents` - When extension loads
@@ -112,9 +112,9 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/tsconfig.json` | Extension TypeScript compiler settings |
-| `tsconfig.base.json` (root) | Shared compiler options extended by each package |
-| `tsconfig.json` (root) | Solution config referencing the workspace packages (`tsc -b`) |
+| `tsconfig.json` | Extension TypeScript compiler settings; extends `../../tsconfig.base.json` |
+
+Shared/solution compiler config (`tsconfig.base.json`, the root solution `tsconfig.json`) lives at the monorepo root — see the root `CLAUDE.md`.
 
 **When to modify**:
 - Changing target ES version
@@ -141,8 +141,7 @@ This document maps each module to its purpose and the files that need to change 
 
 | File | Purpose |
 |------|---------|
-| `extensions/reset-sizes/README.md` | User-facing extension documentation (Marketplace) |
-| `README.md` (root) | Workspace/monorepo overview |
+| `README.md` | User-facing extension documentation (Marketplace) |
 | `TESTING.md` | Manual test scenarios |
 | `CLAUDE.md` | AI agent context |
 | `AGENTS.md` | Sub-agent definitions |
@@ -159,26 +158,26 @@ This document maps each module to its purpose and the files that need to change 
 
 ### Adding a New Configuration Option
 
-1. `extensions/reset-sizes/package.json` - Add to `contributes.configuration.properties`
-2. `extensions/reset-sizes/src/types/index.ts` - Add to `ExtensionConfig` interface
-3. `extensions/reset-sizes/src/utils/index.ts` - Update `getExtensionConfig()` to read it
-4. `extensions/reset-sizes/src/commands/resetAllSizes.ts` - Use the new option
-5. `extensions/reset-sizes/src/test/unit/utils.test.ts` - Add tests
-6. `extensions/reset-sizes/README.md` - Document the option
+1. `package.json` - Add to `contributes.configuration.properties`
+2. `src/types/index.ts` - Add to `ExtensionConfig` interface
+3. `src/utils/index.ts` - Update `getExtensionConfig()` to read it
+4. `src/commands/resetAllSizes.ts` - Use the new option
+5. `src/test/unit/utils.test.ts` - Add tests
+6. `README.md` - Document the option
 
 ### Adding a New Preset
 
-1. `extensions/reset-sizes/package.json` - Add to `resetSizes.preset` enum
-2. `extensions/reset-sizes/src/utils/index.ts` - Add to `PRESET_CONFIGS`
-3. `extensions/reset-sizes/README.md` - Document the preset
+1. `package.json` - Add to `resetSizes.preset` enum
+2. `src/utils/index.ts` - Add to `PRESET_CONFIGS`
+3. `README.md` - Document the preset
 4. `TESTING.md` - Add test scenario
 
 ### Adding a New Command
 
-1. `extensions/reset-sizes/package.json` - Add to `contributes.commands`
-2. `extensions/reset-sizes/package.json` - Add to `activationEvents`
-3. `extensions/reset-sizes/src/extension.ts` - Register the command
-4. `extensions/reset-sizes/src/commands/` - Create new command file
+1. `package.json` - Add to `contributes.commands`
+2. `package.json` - Add to `activationEvents`
+3. `src/extension.ts` - Register the command
+4. `src/commands/` - Create new command file
 5. Add tests
 6. Update documentation
 

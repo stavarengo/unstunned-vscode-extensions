@@ -9,7 +9,7 @@
 
 ## Initial Setup
 
-This repo is a pnpm workspace monorepo. The "Reset Sizes" extension lives at `extensions/reset-sizes/`.
+This extension is a package inside a pnpm workspace monorepo (it lives at `extensions/reset-sizes/`); see the root `CLAUDE.md` for the workspace layout. Clone the repo, then install for the whole workspace.
 
 ```bash
 # Clone the repository
@@ -38,9 +38,9 @@ This type-checks and re-bundles on every file change. Keep this running in a ter
 
 ### 2. Launch Extension Development Host
 
-In VS Code:
+Open the `extensions/reset-sizes` folder in VS Code, then:
 1. Press `F5` (or Run > Start Debugging)
-2. The "Run reset-sizes" configuration launches the extension from `extensions/reset-sizes` (it runs the `build:reset-sizes` preLaunchTask first)
+2. The `preLaunchTask` "build" builds the extension first, then the Extension Development Host launches with the extension loaded
 3. A new VS Code window opens with your extension loaded
 
 ### 3. Test Your Changes
@@ -66,7 +66,7 @@ Tests are pure Node + Mocha against the compiled output in `dist/test/unit/**/*.
 | `corepack enable pnpm` | One-time, activate pnpm |
 | `pnpm install` | Install workspace dependencies |
 | `pnpm run check` | Type-check only (`tsc -b`, no bundle) |
-| `pnpm run build` | Type-check + esbuild bundle every package |
+| `pnpm run build` | Type-check + esbuild bundle |
 | `pnpm run watch` | Watch mode (type-check + bundle) |
 | `pnpm test` | Run test suite |
 | `pnpm run lint` | Run ESLint |
@@ -107,9 +107,9 @@ Tests are pure Node + Mocha against the compiled output in `dist/test/unit/**/*.
 
 ## Debug Configurations
 
-The root `.vscode/launch.json` includes one configuration:
+The extension's own `.vscode/launch.json` includes one configuration:
 
-- **Run reset-sizes**: Launch the Extension Development Host with the extension loaded from `extensions/reset-sizes` (runs the `build:reset-sizes` preLaunchTask first)
+- **Run Extension**: Launch the Extension Development Host with the extension loaded (runs the "build" preLaunchTask first). Open the `extensions/reset-sizes` folder in VS Code and press F5 to use it.
 
 Tests are not run through the VS Code test host; use `pnpm test` from the terminal.
 
@@ -117,7 +117,7 @@ Tests are not run through the VS Code test host; use `pnpm test` from the termin
 
 | Output | Location |
 |--------|----------|
-| Bundled/compiled JS | `extensions/reset-sizes/dist/` |
+| Bundled/compiled JS | `dist/` |
 | Test output | Console (Mocha) |
 | Extension logs | "Reset Sizes" output channel in VS Code |
 
@@ -125,10 +125,10 @@ Tests are not run through the VS Code test host; use `pnpm test` from the termin
 
 ```bash
 # Type-check + bundle
-pnpm --dir extensions/reset-sizes run build
+pnpm run build
 
 # Package as .vsix
-pnpm --dir extensions/reset-sizes run package
+pnpm run package
 ```
 
 The `.vsix` file can be installed manually or published to the VS Code Marketplace.

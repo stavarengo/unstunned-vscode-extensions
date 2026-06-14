@@ -31,7 +31,7 @@
 
 ## Module Breakdown
 
-### `extensions/reset-sizes/src/extension.ts`
+### `src/extension.ts`
 
 **Role**: Extension entry point
 
@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 ```
 
-### `extensions/reset-sizes/src/commands/resetAllSizes.ts`
+### `src/commands/resetAllSizes.ts`
 
 **Role**: Main command implementation
 
@@ -72,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 5. Show summary notification
 6. Prompt for reload if needed
 
-### `extensions/reset-sizes/src/utils/index.ts`
+### `src/utils/index.ts`
 
 **Role**: Utility functions
 
@@ -87,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 | `showReloadPrompt()` | Prompt user to reload window |
 | `PRESET_CONFIGS` | Preset definitions (zoom, zoomAndSettings, custom) |
 
-### `extensions/reset-sizes/src/types/index.ts`
+### `src/types/index.ts`
 
 **Role**: TypeScript type definitions
 
@@ -212,7 +212,7 @@ The extension is built two ways depending on the goal:
 ## Testing Architecture
 
 ```
-extensions/reset-sizes/src/test/
+src/test/
 ├── unit/                # Pure-Node Mocha tests (e.g. resetAllSizes.test.ts, utils.test.ts, types.test.ts)
 └── shims/
     └── vscode-pkg/      # In-memory `vscode` stand-in, wired as a file: devDependency

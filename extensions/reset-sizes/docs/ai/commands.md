@@ -2,7 +2,7 @@
 
 Copy-paste ready commands for common development tasks.
 
-This repo is a pnpm workspace monorepo; the extension lives at `extensions/reset-sizes/`. Root-level scripts run recursively over the workspace.
+Run these from the extension directory (`extensions/reset-sizes`). The same scripts also run recursively from the repo root (`pnpm run build` / `pnpm test`) and per-extension via `pnpm --dir extensions/reset-sizes <script>`.
 
 ## Setup
 
@@ -29,9 +29,6 @@ pnpm run watch
 ```bash
 # Run all tests (pure Node + Mocha; pretest compiles via tsc)
 pnpm test
-
-# Run only the extension's tests
-pnpm --dir extensions/reset-sizes test
 ```
 
 ## Linting
@@ -54,14 +51,11 @@ pnpm run build
 ## Packaging
 
 ```bash
-# Build a .vsix for every extension
+# Build a .vsix for the extension
 pnpm run package
 
-# Package just the reset-sizes extension
-pnpm --dir extensions/reset-sizes run package
-
 # Build the VSIX and install it into local VS Code
-pnpm --dir extensions/reset-sizes run install-local
+pnpm run install-local
 ```
 
 ## Git
@@ -102,7 +96,7 @@ pnpm run build && pnpm run lint && pnpm test
 
 ```bash
 pnpm run watch         # Terminal 1 - keep running
-# Press F5 in VS Code  # Launches dev host (Run reset-sizes)
+# Open extensions/reset-sizes in VS Code, press F5  # "Run Extension" (preLaunchTask "build")
 # Test in dev host
 # Ctrl+R to reload after changes
 ```

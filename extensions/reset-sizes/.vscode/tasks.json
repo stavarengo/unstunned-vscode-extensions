@@ -2,9 +2,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "build:reset-sizes",
+			"label": "build",
 			"type": "shell",
-			"command": "pnpm --dir extensions/reset-sizes run build",
+			"command": "pnpm run build",
 			"problemMatcher": "$tsc",
 			"presentation": {
 				"reveal": "silent"
@@ -15,9 +15,9 @@
 			}
 		},
 		{
-			"label": "watch:reset-sizes",
+			"label": "watch",
 			"type": "shell",
-			"command": "pnpm --dir extensions/reset-sizes run watch",
+			"command": "pnpm run watch",
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"presentation": {
