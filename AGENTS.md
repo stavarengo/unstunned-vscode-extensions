@@ -33,18 +33,18 @@ This file defines specialized sub-agents for working in this VS Code extension r
 - Refactoring code
 
 **Key files to know**:
-- `src/extension.ts` - Entry point
-- `src/commands/resetAllSizes.ts` - Main logic
-- `src/utils/index.ts` - Utilities
-- `src/types/index.ts` - Type definitions
-- `package.json` - Extension manifest
+- `extensions/reset-sizes/src/extension.ts` - Entry point
+- `extensions/reset-sizes/src/commands/resetAllSizes.ts` - Main logic
+- `extensions/reset-sizes/src/utils/index.ts` - Utilities
+- `extensions/reset-sizes/src/types/index.ts` - Type definitions
+- `extensions/reset-sizes/package.json` - Extension manifest
 
 **Workflow**:
 1. Read relevant files first
 2. Understand existing patterns
 3. Make minimal, focused changes
 4. Update tests if needed
-5. Run `npm run compile` and `npm test`
+5. Run `pnpm run build` and `pnpm test`
 
 **Handoff**: Pass completed work to Review agent.
 
@@ -60,13 +60,13 @@ This file defines specialized sub-agents for working in this VS Code extension r
 - Validating existing functionality
 
 **Test locations**:
-- `src/test/suite/*.test.ts` - Automated tests
+- `extensions/reset-sizes/src/test/unit/*.test.ts` - Automated tests
 - `TESTING.md` - Manual test scenarios
 
 **Commands**:
 ```bash
-npm test           # Run all tests
-npm run compile    # Must compile before testing
+pnpm test          # Run all tests
+pnpm run build     # Must compile before testing
 ```
 
 **Handoff**: Report test results to Implementation agent for fixes.
@@ -85,7 +85,7 @@ npm run compile    # Must compile before testing
 **Checklist**:
 - [ ] Code compiles without errors
 - [ ] Tests pass
-- [ ] ESLint passes (`npm run lint`)
+- [ ] ESLint passes (`pnpm run lint`)
 - [ ] Types are correct
 - [ ] Error handling is appropriate
 - [ ] Documentation updated if needed
@@ -160,7 +160,7 @@ When handing off between agents, include:
 
 ### Explorer → Implementation
 ```
-Found that configuration is loaded in src/utils/index.ts:getExtensionConfig().
+Found that configuration is loaded in extensions/reset-sizes/src/utils/index.ts:getExtensionConfig().
 The preset system is defined in PRESET_CONFIGS constant.
 To add a new config option, modify ExtensionConfig type and update getExtensionConfig().
 ```
@@ -168,7 +168,7 @@ To add a new config option, modify ExtensionConfig type and update getExtensionC
 ### Implementation → Test
 ```
 Added new `resetSizes.verbose` configuration option.
-Files changed: package.json, src/types/index.ts, src/utils/index.ts
+Files changed: extensions/reset-sizes/package.json, extensions/reset-sizes/src/types/index.ts, extensions/reset-sizes/src/utils/index.ts
 Need tests for: reading config, using verbose flag in output
 ```
 

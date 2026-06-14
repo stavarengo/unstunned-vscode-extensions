@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(tree:*)",
-      "Bash(npm run compile:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run build:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Skill(ralph-prd-creator)",
@@ -10,10 +11,10 @@
       "Skill(ralph-prd-converter)",
       "Skill(ralph-prd-converter:*)",
       "Bash(git checkout:*)",
-      "Bash(npm run lint:*)",
-      "Bash(npm test:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm test:*)",
       "Bash(git rev-parse:*)",
-      "Bash(node scripts/generate-icon.js:*)"
+      "Bash(node extensions/reset-sizes/scripts/generate-icon.js:*)"
     ]
   }
 }

@@ -1,0 +1,13 @@
+packages:
+  - "extensions/*"
+  - "packages/*"
+
+# Dependency build-script approvals.
+# esbuild: required — provides the bundler binary.
+# @vscode/vsce-sign: used by vsce when signing a VSIX for the marketplace.
+# keytar: only used by `vsce publish` for credential storage (deprecated native
+#         module); publishing can use the VSCE_PAT env var instead, so skip it.
+allowBuilds:
+  '@vscode/vsce-sign': true
+  esbuild: true
+  keytar: false

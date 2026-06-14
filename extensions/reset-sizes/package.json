@@ -1,0 +1,105 @@
+{
+  "name": "reset-sizes-extension",
+  "displayName": "Reset Sizes",
+  "description": "Reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.",
+  "version": "1.0.4",
+  "publisher": "Unstunned",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stavarengo/vscode-reset-ui-sizes-extension"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "reset",
+    "zoom",
+    "font size",
+    "ui",
+    "layout"
+  ],
+  "icon": "images/icon.png",
+  "activationEvents": [
+    "onCommand:resetSizes.resetAll",
+    "onCommand:resetSizes.openActivityLog",
+    "onCommand:resetSizes.openPreview"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "resetSizes.resetAll",
+        "title": "Reset",
+        "category": "Reset Sizes"
+      },
+      {
+        "command": "resetSizes.openActivityLog",
+        "title": "Open Activity Log",
+        "category": "Reset Sizes"
+      },
+      {
+        "command": "resetSizes.openPreview",
+        "title": "Open Preview",
+        "category": "Reset Sizes"
+      }
+    ],
+    "configuration": {
+      "title": "Reset Sizes",
+      "properties": {
+        "resetSizes.confirmBeforeDestructiveReset": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a modal confirmation before clearing persisted settings. The dialog names the specific keys and scopes that will be cleaned. Recommended to keep enabled."
+        },
+        "resetSizes.showSummaryNotification": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a summary notification after each reset, naming what was changed.",
+          "markdownDescription": "Show a summary notification after each reset, naming what was changed.\n\nThe detailed run-by-run record is available in the activity log: [Open Reset Sizes activity log](command:resetSizes.openActivityLog).\n\nWant to see what a reset would change before you run it? Open the read-only matrix: [Open Reset Sizes preview](command:resetSizes.openPreview)."
+        },
+        "resetSizes.reloadSilently": {
+          "type": "boolean",
+          "default": false,
+          "description": "When a reset changes settings that require a window reload, reload immediately without prompting. Set to true by choosing \"Reload and don't ask again\" on the post-reset prompt; toggle off to bring the prompt back."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit",
+    "bundle": "node esbuild.mjs",
+    "bundle:prod": "node esbuild.mjs --production",
+    "build": "run-s check bundle",
+    "pretest": "tsc -p tsconfig.json",
+    "test": "mocha",
+    "test:manual-smoke": "echo 'Manual smoke checklist lives in docs/ai/manual-smoke.md. Run those scenarios in an Extension Development Host (F5).' && exit 1",
+    "lint": "eslint src --ext ts",
+    "watch": "run-p watch:tsc watch:esbuild",
+    "watch:tsc": "tsc -p tsconfig.json --watch",
+    "watch:esbuild": "node esbuild.mjs --watch",
+    "vscode:prepublish": "run-s clean check bundle:prod",
+    "package": "vsce package --no-dependencies --out extension.vsix",
+    "install-local": "pnpm run package && bash scripts/install-local.sh extension.vsix",
+    "clean": "node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true});\"",
+    "bump": "node ./scripts/bump-version.js",
+    "publish": "node ./scripts/publish.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18",
+    "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "@vscode/vsce": "^2.32.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^8.56.0",
+    "mocha": "^10.2.0",
+    "npm-run-all2": "^9.0.2",
+    "typescript": "^5.3.3",
+    "vscode": "file:./src/test/shims/vscode-pkg"
+  }
+}

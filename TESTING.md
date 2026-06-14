@@ -4,7 +4,7 @@ This guide provides step-by-step instructions for manually testing the Reset Siz
 
 ## Prerequisites
 
-1. Extension is compiled: `npm run compile`
+1. Extension is compiled: `pnpm run build`
 2. VS Code is open with this project
 
 ## Test Scenarios

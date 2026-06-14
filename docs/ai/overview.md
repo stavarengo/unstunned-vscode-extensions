@@ -92,5 +92,5 @@ The extension contributes:
 - **Language**: TypeScript (strict mode)
 - **Target**: VS Code ^1.74.0
 - **Dependencies**: None (only VS Code API)
-- **Build**: TypeScript compiler (tsc)
-- **Tests**: Mocha + @vscode/test-electron
+- **Build**: esbuild bundle (tsc still type-checks and emits the tree for tests)
+- **Tests**: pure-Node Mocha against an in-memory `vscode` shim (no `@vscode/test-electron`)

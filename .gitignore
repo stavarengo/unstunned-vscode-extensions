@@ -6,3 +6,7 @@ dist/
 *.vsix
 /test-workspace/
 tmp/
+
+# pnpm content-addressable store (created in-repo when the global store is on a
+# different filesystem); never commit it — pnpm-lock.yaml is the source of truth.
+.pnpm-store/

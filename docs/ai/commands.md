@@ -2,61 +2,66 @@
 
 Copy-paste ready commands for common development tasks.
 
+This repo is a pnpm workspace monorepo; the extension lives at `extensions/reset-sizes/`. Root-level scripts run recursively over the workspace.
+
 ## Setup
 
 ```bash
-# Install dependencies
-npm install
+# Activate pnpm (one-time, via Corepack)
+corepack enable pnpm
 
-# Compile TypeScript (one-time)
-npm run compile
+# Install workspace dependencies
+pnpm install
+
+# Type-check + bundle every package
+pnpm run build
 ```
 
 ## Development
 
 ```bash
-# Watch mode - recompiles on file changes
-npm run watch
+# Watch mode - type-checks and re-bundles on file changes
+pnpm run watch
 ```
 
 ## Testing
 
 ```bash
-# Run all tests
-npm test
+# Run all tests (pure Node + Mocha; pretest compiles via tsc)
+pnpm test
 
-# Run tests with verbose output
-npm test -- --reporter spec
+# Run only the extension's tests
+pnpm --dir extensions/reset-sizes test
 ```
 
 ## Linting
 
 ```bash
 # Run ESLint
-npm run lint
-
-# Run ESLint with auto-fix
-npm run lint -- --fix
+pnpm run lint
 ```
 
 ## Building
 
 ```bash
-# Production build
-npm run compile
+# Type-check only (no bundle)
+pnpm run check
 
-# Pre-publish build (same as compile)
-npm run vscode:prepublish
+# Type-check + esbuild bundle
+pnpm run build
 ```
 
 ## Packaging
 
 ```bash
-# Package as .vsix (requires vsce)
-npx vsce package
+# Build a .vsix for every extension
+pnpm run package
 
-# Install locally for testing
-code --install-extension reset-sizes-extension-*.vsix
+# Package just the reset-sizes extension
+pnpm --dir extensions/reset-sizes run package
+
+# Build the VSIX and install it into local VS Code
+pnpm --dir extensions/reset-sizes run install-local
 ```
 
 ## Git
@@ -88,7 +93,7 @@ Ctrl+Shift+U            Open Output panel
 
 ```bash
 # Full verification before commit
-npm run compile && npm run lint && npm test
+pnpm run build && pnpm run lint && pnpm test
 ```
 
 ## Common Workflows
@@ -96,8 +101,8 @@ npm run compile && npm run lint && npm test
 ### Make a change and test
 
 ```bash
-npm run watch          # Terminal 1 - keep running
-# Press F5 in VS Code  # Launches dev host
+pnpm run watch         # Terminal 1 - keep running
+# Press F5 in VS Code  # Launches dev host (Run reset-sizes)
 # Test in dev host
 # Ctrl+R to reload after changes
 ```
@@ -105,13 +110,13 @@ npm run watch          # Terminal 1 - keep running
 ### Run tests after changes
 
 ```bash
-npm run compile && npm test
+pnpm test              # pretest recompiles via tsc
 ```
 
 ### Prepare for PR
 
 ```bash
-npm run compile && npm run lint && npm test && git status
+pnpm run build && pnpm run lint && pnpm test && git status
 ```
 
 ## VS Code Extension Commands
@@ -128,4 +133,4 @@ These are the commands the extension provides (not dev commands):
 |-------------|---------|
 | Node.js | ^18.x |
 | VS Code | ^1.74.0 |
-| npm | (included with Node) |
+| pnpm | activated via Corepack (`corepack enable pnpm`) |

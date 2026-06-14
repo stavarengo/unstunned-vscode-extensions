@@ -8,7 +8,7 @@ contracts that the automated test suite cannot verify.
 
 ## How to run
 
-1. From the repo root: `npm run install-local`. This compiles, packages, and
+1. From the repo root: `pnpm --dir extensions/reset-sizes run install-local`. This compiles, packages, and
    installs the latest build into your VS Code (uses `code --install-extension
    extension.vsix --force`).
 2. **Developer: Reload Window** (Command Palette).

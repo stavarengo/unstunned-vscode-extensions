@@ -4,15 +4,25 @@
 
 ### Compiler Configuration
 
+Shared options live in the root `tsconfig.base.json`; each package's `tsconfig.json`
+extends it and adds `rootDir`/`outDir`.
+
 ```json
+// tsconfig.base.json
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
   }
 }
 ```

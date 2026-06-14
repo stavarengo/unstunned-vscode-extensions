@@ -4,13 +4,15 @@ function getCommand(base) {
 	return process.platform === 'win32' ? `${base}.cmd` : base;
 }
 
-const npmCmd = getCommand('npm');
+const pnpmCmd = getCommand('pnpm');
 
 const args = process.argv.slice(2).filter(Boolean);
 const bump = args[0] ?? 'patch';
 const extraArgs = args.slice(1);
 
-const result = spawnSync(npmCmd, ['version', bump, '--no-git-tag-version', '--force', ...extraArgs], {
+// `--no-git-tag-version` keeps this a pure package.json edit (no commit/tag),
+// so it also works on a dirty working tree.
+const result = spawnSync(pnpmCmd, ['version', bump, '--no-git-tag-version', '--allow-same-version', ...extraArgs], {
 	stdio: 'inherit',
 });
 

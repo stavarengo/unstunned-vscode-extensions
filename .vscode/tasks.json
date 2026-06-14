@@ -2,12 +2,12 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "watch",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
+			"label": "build:reset-sizes",
+			"type": "shell",
+			"command": "pnpm --dir extensions/reset-sizes run build",
+			"problemMatcher": "$tsc",
 			"presentation": {
-				"reveal": "never"
+				"reveal": "silent"
 			},
 			"group": {
 				"kind": "build",
@@ -15,11 +15,13 @@
 			}
 		},
 		{
-			"type": "npm",
-			"script": "compile",
-			"problemMatcher": "$tsc",
+			"label": "watch:reset-sizes",
+			"type": "shell",
+			"command": "pnpm --dir extensions/reset-sizes run watch",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
 			"presentation": {
-				"reveal": "silent"
+				"reveal": "never"
 			},
 			"group": "build"
 		}

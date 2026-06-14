@@ -31,7 +31,7 @@
 
 ## Module Breakdown
 
-### `src/extension.ts`
+### `extensions/reset-sizes/src/extension.ts`
 
 **Role**: Extension entry point
 
@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 ```
 
-### `src/commands/resetAllSizes.ts`
+### `extensions/reset-sizes/src/commands/resetAllSizes.ts`
 
 **Role**: Main command implementation
 
@@ -72,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 5. Show summary notification
 6. Prompt for reload if needed
 
-### `src/utils/index.ts`
+### `extensions/reset-sizes/src/utils/index.ts`
 
 **Role**: Utility functions
 
@@ -87,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 | `showReloadPrompt()` | Prompt user to reload window |
 | `PRESET_CONFIGS` | Preset definitions (zoom, zoomAndSettings, custom) |
 
-### `src/types/index.ts`
+### `extensions/reset-sizes/src/types/index.ts`
 
 **Role**: TypeScript type definitions
 
@@ -202,16 +202,20 @@ Command handler runs resetAllSizes()
 (Extension stays active until VS Code closes)
 ```
 
+## Build Architecture
+
+The extension is built two ways depending on the goal:
+
+- **Bundle** (`pnpm run build`): `esbuild.mjs` bundles `src/extension.ts` into `dist/extension.js`, with `vscode` marked external. This is the artifact shipped in the `.vsix`.
+- **Type-check + emit for tests**: `tsc` still type-checks the whole tree and emits the full compiled tree into `dist/` so the unit tests have plain `.js` to run. `pnpm run check` runs the solution type-check (`tsc -b`) with no bundle.
+
 ## Testing Architecture
 
 ```
-src/test/
-├── runTest.ts           # Bootstraps VS Code test environment
-└── suite/
-    ├── index.ts         # Mocha configuration
-    ├── resetAllSizes.test.ts  # Command tests
-    ├── utils.test.ts    # Utility function tests
-    └── types.test.ts    # Type validation tests
+extensions/reset-sizes/src/test/
+├── unit/                # Pure-Node Mocha tests (e.g. resetAllSizes.test.ts, utils.test.ts, types.test.ts)
+└── shims/
+    └── vscode-pkg/      # In-memory `vscode` stand-in, wired as a file: devDependency
 ```
 
-Tests use mocked VS Code APIs to isolate functionality.
+Tests run as plain Node + Mocha against `dist/test/unit/**/*.test.js` (compiled from `src/test/unit/*.test.ts` by the `pretest` tsc step). There is no `@vscode/test-electron` and no VS Code host — the `vscode` module resolves to the in-memory shim under `src/test/shims/vscode-pkg/`, which exposes test helpers (`_testResetConfigStore`, `_testSetRemoteName`, `_testSetExtensions`, `_testSetWorkspaceFolders`) to isolate functionality.
