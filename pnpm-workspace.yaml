@@ -2,6 +2,13 @@ packages:
   - "extensions/*"
   - "packages/*"
 
+dedupeInjectedDeps: true
+preferWorkspacePackages: true
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@jobseek/*'
+
 # Dependency build-script approvals.
 # esbuild: required — provides the bundler binary.
 # @vscode/vsce-sign: used by vsce when signing a VSIX for the marketplace.
@@ -11,3 +18,4 @@ allowBuilds:
   '@vscode/vsce-sign': true
   esbuild: true
   keytar: false
+  unrs-resolver: true

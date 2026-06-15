@@ -2,6 +2,10 @@
   "name": "vscode-extensions-monorepo",
   "private": true,
   "packageManager": "pnpm@11.6.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11.0"
+  },
   "scripts": {
     "check": "tsc -b",
     "build": "pnpm -r --sort run build",

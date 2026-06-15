@@ -13,8 +13,8 @@ This extension is a package inside a pnpm workspace monorepo (it lives at `exten
 
 ```bash
 # Clone the repository
-git clone https://github.com/stavarengo/vscode-reset-ui-sizes-extension.git
-cd vscode-reset-ui-sizes-extension
+git clone https://github.com/stavarengo/unstunned-vscode-extensions.git
+cd unstunned-vscode-extensions
 
 # Activate pnpm (one-time, via Corepack)
 corepack enable pnpm

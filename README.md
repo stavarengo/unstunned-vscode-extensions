@@ -1,39 +1,22 @@
-# VS Code Extensions Monorepo
+# Unstunned Extensions for VSCode - Monorepo Workspace
 
-A pnpm workspace that houses VS Code extensions (and any shared internal packages they grow into).
+This is a monorepo project. Each folder inside `extensions/` is an isolated extension, totally independent from each other. They are not even packages of the same app, but instead totally different apps. The only thing they share in common is that they all belong to the same workspace.
 
-## Layout
+## The extensions in this monorepo
 
-```text
-extensions/
-  reset-sizes/        # "Reset Sizes" extension — resets UI/editor/terminal zoom & size settings
-packages/             # (reserved) shared internal packages, bundled into extensions
-```
+### 1. [Reset Sizes](./extensions/reset-sizes/README.md)
 
-## Prerequisites
+A VS Code extension that provides a single command to reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.
 
-This repo pins pnpm via Corepack (the `packageManager` field in the root `package.json`). With a recent Node:
-
-```bash
-corepack enable pnpm
-```
-
-## Common commands (from the repo root)
-
-```bash
-pnpm install          # install all workspace deps
-pnpm run build        # build every package (type-check + bundle)
-pnpm test             # run each package's tests
-pnpm run lint         # lint every package
-pnpm run package      # build a .vsix for every extension
-```
-
-Per-extension work runs in that extension's folder, e.g.:
-
-```bash
-pnpm --dir extensions/reset-sizes run build
-pnpm --dir extensions/reset-sizes test
-pnpm --dir extensions/reset-sizes run package
-```
-
-See `extensions/reset-sizes/README.md` for the extension's own docs.
+**Features:**
+<!-- Keep this list in sync with the [Features section of the extension's README](./extensions/reset-sizes/README.md#features) -->
+- **Single Command**: Reset all zooms and size settings with one command
+- **Flexible Configuration**: Choose exactly which VS Code commands to execute and which settings to reset
+- **Three Presets**:
+  - **zoom** (default): Resets zoom behaviors only (UI zoom, editor font zoom, terminal font zoom)
+  - **zoomAndSettings**: Resets zooms AND removes size-related settings to restore VS Code defaults
+  - **custom**: Define your own command list and settings to reset - fully customizable
+- **Safe & Reversible**: Only removes custom setting values - you can always set them again
+- **Powerful Customization**: Add any valid VS Code command to your reset workflow
+- **Scope Control**: Choose which configuration scopes to reset (user, workspace, workspace folder)
+- **User-Friendly**: Confirmations before changing settings, reload prompts when needed

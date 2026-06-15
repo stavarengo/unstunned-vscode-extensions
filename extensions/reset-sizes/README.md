@@ -3,7 +3,7 @@
 A VS Code extension that provides a single command to reset all size-related changes (UI zoom, editor font zoom, terminal font zoom, and optionally size-related settings) back to defaults.
 
 ## Features
-
+<!-- Keep this list in sync with the [Features section of the workspace README](../README.md#1-reset-sizes) -->
 - **Single Command**: Reset all zooms and size settings with one command
 - **Flexible Configuration**: Choose exactly which VS Code commands to execute and which settings to reset
 - **Three Presets**:
