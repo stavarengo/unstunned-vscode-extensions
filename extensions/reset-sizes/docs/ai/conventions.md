@@ -4,8 +4,7 @@
 
 ### Compiler Configuration
 
-Shared options live in the root `tsconfig.base.json`; each package's `tsconfig.json`
-extends it and adds `rootDir`/`outDir`.
+Shared options live in the root `tsconfig.base.json`; each package's `tsconfig.json` extends it and adds `rootDir`/`outDir`.
 
 ```json
 // tsconfig.base.json

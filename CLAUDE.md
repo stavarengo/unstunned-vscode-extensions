@@ -1,7 +1,6 @@
 # CLAUDE.md — Workspace
 
-pnpm workspace monorepo for VS Code extensions. This file covers the **workspace**;
-each extension carries its own `CLAUDE.md` with the detail.
+pnpm workspace monorepo for VS Code extensions. This file covers the **workspace**; each extension carries its own `CLAUDE.md` with the detail.
 
 ## Layout
 
@@ -36,11 +35,8 @@ pnpm run check      # tsc -b solution type-check
 pnpm run package    # build a .vsix for every extension
 ```
 
-Per-extension work: `pnpm --dir extensions/<name> run <script>`, or `cd` into the
-extension and run the plain script.
+Per-extension work: `pnpm --dir extensions/<name> run <script>`, or `cd` into the extension and run the plain script.
 
 ## Working on an extension
 
-Read that extension's own context files, e.g. for Reset Sizes:
-`extensions/reset-sizes/CLAUDE.md` (architecture, conventions, testing policy),
-`extensions/reset-sizes/AGENTS.md`, and `extensions/reset-sizes/docs/`.
+Read that extension's own context files, e.g. for Reset Sizes: `extensions/reset-sizes/CLAUDE.md` (architecture, conventions, testing policy), `extensions/reset-sizes/AGENTS.md`, and `extensions/reset-sizes/docs/`.

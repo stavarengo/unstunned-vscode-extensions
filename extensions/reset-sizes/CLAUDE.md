@@ -30,9 +30,7 @@ pnpm run install-local # Install the built .vsix into local VS Code
 
 ## Repository Structure
 
-This extension is a self-contained package under `extensions/` in a pnpm workspace
-monorepo — see the root `CLAUDE.md` for the workspace layout. Its own internal
-structure:
+This extension is a self-contained package under `extensions/` in a pnpm workspace monorepo — see the root `CLAUDE.md` for the workspace layout. Its own internal structure:
 
 ```
 package.json              # Extension manifest, contributes commands/settings
@@ -94,11 +92,7 @@ dist/                     # Build output (esbuild bundle + tsc-emitted tree)
 
 ## Testing policy
 
-> **No `@vscode/test-electron`.** It was removed after a real VS Code Electron
-> host crashed during a test run and dumped 42 GB of core to the host's disk.
-> All automated tests run as pure Node + Mocha against a local `vscode` shim
-> (`src/test/shims/vscode-pkg/`, wired in as a `file:` devDependency relative to
-> the extension's `package.json`).
+> **No `@vscode/test-electron`.** It was removed after a real VS Code Electron host crashed during a test run and dumped 42 GB of core to the host's disk. All automated tests run as pure Node + Mocha against a local `vscode` shim (`src/test/shims/vscode-pkg/`, wired in as a `file:` devDependency relative to the extension's `package.json`).
 
 - **Build system**: the extension ships as an esbuild bundle (`esbuild.mjs` bundles `src/extension.ts` -> `dist/extension.js` with `vscode` marked external). TypeScript (`tsc`) is still used to type-check AND emit the full source tree that the unit tests run against. There is no longer an `npm run compile`; use `pnpm run build` (type-check + bundle) or `pnpm run check` (type-check only).
 - **Run tests**: `pnpm test` (from the extension dir). `pretest` compiles via `tsc`, then plain Mocha runs against `dist/test/unit/**/*.test.js`.
